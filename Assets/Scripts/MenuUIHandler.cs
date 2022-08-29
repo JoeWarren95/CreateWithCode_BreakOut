@@ -16,7 +16,7 @@ public class MenuUIHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        mainManager.LoadHighScore();
     }
 
     // Update is called once per frame
@@ -35,6 +35,9 @@ public class MenuUIHandler : MonoBehaviour
     //this function is called whenever we want to exit the game
     public void Exit()
     {
+        //this line will save the user's last high score
+        MainManager.Instance.SaveHighScore();
+
 #if UNITY_EDITOR
         EditorApplication.ExitPlaymode();
         //this line will take us back to the main menu
