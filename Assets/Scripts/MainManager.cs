@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
+//this library is used for reading and writing data
 using System.IO;
 
 public class MainManager : MonoBehaviour
@@ -11,21 +13,25 @@ public class MainManager : MonoBehaviour
     public static MainManager Instance;
 
     #region My Variables
-    private Paddle player;
-    public string PlayerName;
+    //private Paddle player;
+    private static string bestPlayer;
+    private static int highScore;
 
-    public int highScore;
+    public Text CurrentPlayerName;
+    public Text BestPlayerName;
 
-    //public GameObject HighScoreText;
-
-    private bool isNewHighScore;
+    //public string PlayerName;
 
     #endregion
+
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
 
     public Text ScoreText;
+    
+    //made text variables for highscore, playername, and highscore player name
+
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -34,30 +40,9 @@ public class MainManager : MonoBehaviour
     private bool m_GameOver = false;
 
     #region My code additions
-    #region notes
-    //step 1 - get game to recognize when a new highscore has been hit
-    //step 2 - get game to save that score between sessions
-    //          - input field has to appear and allow user to enter their name
-    //          - input field has to disappear once player has entered their name
-    //step 3 - allow player to input their name if they get a highscore
-    //          - get input field to appear
-    //          - get input field to accept/save input
-    //step 4 - build
-    #endregion
-    //add this to check there are no other main managers in the scene
     private void Awake()
     {
-        if(Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-        //HighScoreText.gameObject.SetActive(false);
-        //call LoadHighScore to maintain high score between sessions
-        LoadHighScore();
+        LoadGame();
     }
 
     //I want to save the player's name, and their highscore if they got it
@@ -68,9 +53,17 @@ public class MainManager : MonoBehaviour
         public string PlayerName;
         public int highScore;
     }
-
+    /*
     public void SaveName()
     {
+        SaveName();
+        
+        //disable the gameobject
+        //HighScoreText.gameObject.SetActive(false);
+
+        //take player back to the start menu
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
         //save the players name between scenes
         SaveData data = new SaveData();
         data.PlayerName = PlayerName;
@@ -115,14 +108,13 @@ public class MainManager : MonoBehaviour
             highScore = data.highScore;
         }
     }
+    */
     #endregion
 
     // Start is called before the first frame update
     void Start()
     {
-        //get reference to our paddle
-        player = GameObject.Find("Paddle").GetComponent<Paddle>();
-
+        //this is where the bricks are created in the scene
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -137,12 +129,17 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        CurrentPlayerName.text = PlayerDataHandler.Instance.PlayerName;
+
+        SetBestPlayer();
     }
 
     private void Update()
     {
         if (!m_Started)
         {
+            //this condition starts the game
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 m_Started = true;
@@ -154,73 +151,90 @@ public class MainManager : MonoBehaviour
                 Ball.AddForce(forceDir * 2.0f, ForceMode.VelocityChange);
             }
         }
-
-        #region Adding check here for new high score
-        if(m_Points > highScore)
-        {
-            highScore = m_Points;
-            isNewHighScore = true;
-
-            PlayerPrefs.SetInt("Highscore", highScore);
-        }
-
-        //we need to check if there was a new high score first
-        //if there was a new high score, set different text active
-        //also set text box active for player to enter their name
-        else if (isNewHighScore && m_GameOver)
-        {
-            Debug.Log("Your high score was " + highScore + "! Good Job!!");
-            #region Enter name comments
-            //HighScoreText.gameObject.SetActive(true);
-            //disable the character controller
-
-            /*if (Input.GetKeyDown(KeyCode.Return))
-            {
-                //save the entered name
-                SaveName();
-                //disable the gameobject
-                HighScoreText.gameObject.SetActive(false);
-                //take player back to the start menu
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            }*/
-            #endregion
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            }
-        }
-       
-        else if (m_GameOver && !isNewHighScore)
+        else if (m_GameOver)
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }
-        #endregion
     }
 
     void AddPoint(int point)
     {
         m_Points += point;
+        //sets score to be saved?
+        PlayerDataHandler.Instance.Score = m_Points;
         ScoreText.text = $"Score : {m_Points}";
     }
 
     public void GameOver()
     {
         m_GameOver = true;
+        CheckBestPlayer();
         GameOverText.SetActive(true);
     }
 
-    #region Button Code
-    public void StartNew()
+    /*private void CheckBestScore()
     {
+        int currentScore = PlayerDataHandler.Instance.Score;
 
+        if(currentScore > highScore)
+        {
+            bestPlayer = PlayerDataHandler.Instance.PlayerName;
+        }
+    }*/
+
+    private void CheckBestPlayer()
+    {
+        int CurrentScore = PlayerDataHandler.Instance.Score;
+
+        if(CurrentScore > highScore)
+        {
+            bestPlayer = PlayerDataHandler.Instance.PlayerName;
+            highScore = CurrentScore;
+
+            BestPlayerName.text = $"Best Score - {bestPlayer}: {highScore}";
+
+            SaveGameRank(bestPlayer, highScore);
+        }
     }
 
-    public void Exit()
+    private void SetBestPlayer()
     {
-        
+        //this function will set the name of the player with the highest score
+        if(bestPlayer == null && highScore == 0)
+        {
+            BestPlayerName.text = "";
+        }
+        else
+        {
+            BestPlayerName.text = $"Best Score - {bestPlayer}: {highScore}";
+        }
     }
-    #endregion
+
+    public void SaveGameRank(string bestPlayerName, int bestPlayerScore)
+    {
+        SaveData data = new SaveData();
+
+        data.PlayerName = bestPlayerName;
+        data.highScore = highScore;
+
+        string json = JsonUtility.ToJson(data);
+        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+    }
+
+    public void LoadGame()
+    {
+        string path = Application.persistentDataPath + "/savefile.json";
+
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            bestPlayer = data.PlayerName;
+            highScore = data.highScore;
+        }
+    }
 }
