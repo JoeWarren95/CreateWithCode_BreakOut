@@ -9,9 +9,6 @@ using System.IO;
 
 public class MainManager : MonoBehaviour
 {
-    //make MainManager into a Singleton
-    public static MainManager Instance;
-
     #region My Variables
     //private Paddle player;
     private static string bestPlayer;
@@ -19,8 +16,6 @@ public class MainManager : MonoBehaviour
 
     public Text CurrentPlayerName;
     public Text BestPlayerName;
-
-    //public string PlayerName;
 
     #endregion
 
@@ -30,8 +25,6 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     
-    //made text variables for highscore, playername, and highscore player name
-
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -39,7 +32,6 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    #region My code additions
     private void Awake()
     {
         LoadGame();
@@ -53,63 +45,6 @@ public class MainManager : MonoBehaviour
         public string PlayerName;
         public int highScore;
     }
-    /*
-    public void SaveName()
-    {
-        SaveName();
-        
-        //disable the gameobject
-        //HighScoreText.gameObject.SetActive(false);
-
-        //take player back to the start menu
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-
-        //save the players name between scenes
-        SaveData data = new SaveData();
-        data.PlayerName = PlayerName;
-
-        string json = JsonUtility.ToJson(data);
-
-        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
-    }
-
-    public void LoadName()
-    {
-        string path = Application.persistentDataPath + "/savefile.json";
-
-        if (File.Exists(path))
-        {
-            string json = File.ReadAllText(path);
-
-            SaveData data = JsonUtility.FromJson<SaveData>(json);
-
-            PlayerName = data.PlayerName;
-        }
-    }
-
-    public void SaveHighScore()
-    {
-        SaveData data = new SaveData();
-        data.highScore = highScore;
-
-        string json = JsonUtility.ToJson(data);
-        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
-    }
-
-    public void LoadHighScore()
-    {
-        string path = Application.persistentDataPath + "/savefile.json";
-
-        if (File.Exists(path))
-        {
-            string json = File.ReadAllText(path);
-
-            SaveData data = JsonUtility.FromJson<SaveData>(json);
-            highScore = data.highScore;
-        }
-    }
-    */
-    #endregion
 
     // Start is called before the first frame update
     void Start()
@@ -175,16 +110,6 @@ public class MainManager : MonoBehaviour
         GameOverText.SetActive(true);
     }
 
-    /*private void CheckBestScore()
-    {
-        int currentScore = PlayerDataHandler.Instance.Score;
-
-        if(currentScore > highScore)
-        {
-            bestPlayer = PlayerDataHandler.Instance.PlayerName;
-        }
-    }*/
-
     private void CheckBestPlayer()
     {
         int CurrentScore = PlayerDataHandler.Instance.Score;
@@ -226,6 +151,7 @@ public class MainManager : MonoBehaviour
 
     public void LoadGame()
     {
+        //this function will allow data to persist between sessions I believe
         string path = Application.persistentDataPath + "/savefile.json";
 
         if (File.Exists(path))

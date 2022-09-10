@@ -11,9 +11,6 @@ using UnityEditor;
 
 public class MenuUIHandler : MonoBehaviour
 {
-    //public MainManager mainManager;
-    //public string PlayerName;
-
     //variable for the player's name
     [SerializeField] Text PlayerNameInput;
 
@@ -29,44 +26,6 @@ public class MenuUIHandler : MonoBehaviour
         //load scene 1 in build settings which is our game
         SceneManager.LoadScene(1);
     }
-
-    #region Save Data that may get deleted
-/*    
-    [System.Serializable]
-    class SaveNameData
-    {
-        public string PlayerName;
-    }
-
-
-    public void SaveName()
-    {
-        
-        //save the entered name
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            //take player back to the start menu
-            //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            
-
-            //save the players name between scenes
-            SaveNameData data = new SaveNameData();
-            data.PlayerName = PlayerName;
-
-            string json = JsonUtility.ToJson(data);
-
-            File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
-            SceneManager.LoadScene(1);
-        }
-
-        //SceneManager.LoadScene(SceneManager.LoadScene(1));
-
-        //SaveName();
-
-        //disable the gameobject
-        //HighScoreText.gameObject.SetActive(false);
-    }*/
-    #endregion
 
     public void SetPlayerName()
     {
